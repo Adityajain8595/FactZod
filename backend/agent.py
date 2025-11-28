@@ -217,6 +217,7 @@ def rewrite_text(state: FactCheckState):
     prompt = PromptTemplate(
         input_variables = ['original_text','fact_check_report'],
         template = '''You are a Neutral News Editor. Your goal is to rewrite the original text to be objective, accurate, and cited.
+            Try to preserve the original wording, style, and flow as much as possible while ensuring factual accuracy.
 
             Original Text: {original_text}
             Fact Check Report: {fact_check_report}
@@ -227,7 +228,8 @@ def rewrite_text(state: FactCheckState):
             2. Fact Correction: 
             - If a claim is marked "FALSE" in the Fact Check Report, rewrite the sentence with the *Correct Information*.
             - If a claim is "INCONCLUSIVE", keep it but soften the certainty (e.g., "It is reported that...", "Sources suggest...").
-            3. Flow: Ensure the rewritten text flows naturally. Do not simply list facts.
+            3. Flow: Ensure the rewritten text flows naturally. Do not simply list facts and include citations only where necessary, 
+            like to prove something unless avoid them.
 
             Provide the final rewritten article only.
 
