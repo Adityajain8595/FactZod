@@ -35,6 +35,7 @@ class RewrittenText(BaseModel):
 
 class VerificationResult(BaseModel):
     claim: str = Field(description="The claim extracted")
+    evidence: str = Field(description="The evidence text supporting or contradicting the claim")
     status: str = Field(description="VERIFIED, FALSE, or INCONCLUSIVE")
     reason: str = Field(description="Reasoning")
     correction: str = Field(description="Correction if false", default="")
