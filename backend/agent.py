@@ -167,26 +167,36 @@ def fact_check_report(state: FactCheckState):
 
             # INSTRUCTIONS
             For each claim, associate its corresponding search evidences from collection of evidences in {evidences}:
-            1. Compare the Claim against the Evidence.
-            2. Assign one of the following statuses:
-            - "VERIFIED": The evidence explicitly confirms the claim (numbers and dates match).
-            - "FALSE": The evidence explicitly contradicts the claim (e.g., Claim says "50%", Evidence says "10%").
-            - "INCONCLUSIVE": The evidence is missing, unrelated, or vague.
-            3. Provide a one-sentence "Reason" for your verdict.
-            4. If "VERIFIED", extract the Source URL or Name from the evidence.
-            5. If "FALSE", extract the Correct Information from the evidence.
+            1. **CLAIM FIELD**: Restate the claim exactly as provided.
 
+            2. **EVIDENCE FIELD**: Extract the ACTUAL EVIDENCE TEXT from the search results that directly supports or contradicts the claim. 
+               - This should be QUOTED or SUMMARIZED text from the sources
+               - Example: "According to NASA's official statement: 'The Great Wall is not visible from space with the naked eye...'"
+               - DO NOT just repeat the reasoning here
+               
+            3. **REASON FIELD**: Provide your LOGICAL REASONING based on comparing the claim vs evidence
+               - Example: "The evidence from NASA directly contradicts the claim about visibility from space"
+               - This explains WHY you assigned the status
+               
+            4. **STATUS**: Assign one of:
+               - "VERIFIED": Evidence explicitly confirms ALL aspects of the claim
+               - "FALSE": Evidence explicitly contradicts the claim
+               - "INCONCLUSIVE": Evidence is missing, conflicting, or vague
+               
+            5. **CORRECTION** (only if FALSE): Provide the CORRECT factual information from the evidence
+               
+            6. **SOURCE**: Extract the specific source name and URL from the evidence
+            
             Finally compile a comprehensive report summarizing the fact-checking results and your verdicts.
             
-            Return only the report in JSON format strictly including following details strictly for each claim:
-
+            Return only the JSON report with these EXACT fields strictly for each claim:
             "claim": "...",
             "evidence": "...",
             "status": "VERIFIED" | "FALSE" | "INCONCLUSIVE",
             "reason": "...",
             "correction": "..." (only if FALSE),
             "source": "..." (if available)
-            
+
             {format_instructions}
             ''',
         partial_variables = {"format_instructions": parser.get_format_instructions()}
@@ -216,9 +226,7 @@ def rewrite_text(state: FactCheckState):
             2. Fact Correction: 
             - If a claim is marked "FALSE" in the Fact Check Report, rewrite the sentence with the *Correct Information*.
             - If a claim is "INCONCLUSIVE", keep it but soften the certainty (e.g., "It is reported that...", "Sources suggest...").
-            3. Citation: 
-            - If a claim is "VERIFIED", append a citation in brackets at the end of the sentence: `[Source: URL]`.
-            4. Flow: Ensure the rewritten text flows naturally. Do not simply list facts.
+            3. Flow: Ensure the rewritten text flows naturally. Do not simply list facts.
 
             Provide the final rewritten article only.
 

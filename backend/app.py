@@ -1,4 +1,3 @@
-# main.py
 import json
 import asyncio
 from fastapi import FastAPI
