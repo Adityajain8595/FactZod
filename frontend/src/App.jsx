@@ -36,12 +36,6 @@ const AlertCircle = ({ className }) => (
   </svg>
 );
 
-const Shield = ({ className }) => (
-  <svg className={className} width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-    <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/>
-  </svg>
-);
-
 const ChevronDown = ({ className }) => (
   <svg className={className} width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
     <polyline points="6 9 12 15 18 9"/>
@@ -109,14 +103,24 @@ const FactCard = ({ fact, index }) => {
       animate={{ opacity: 1, y: 0 }}
       transition={{ delay: index * 0.1 }}
       className={cn(
-        'rounded-3xl border-2 p-6 shadow-xl backdrop-blur-sm',
+        'rounded-3xl border-2 p-6 shadow-xl backdrop-blur-sm relative overflow-hidden',
         isVerified 
           ? 'border-green-200 bg-white' 
           : 'border-red-200 bg-white'
       )}
     >
-      <div className="flex items-start justify-between mb-4">
-        <h3 className="font-bold text-slate-900 text-lg leading-tight flex-1">
+      {/* Background Pattern */}
+      <div className={cn(
+        'absolute top-0 right-0 w-32 h-32 opacity-5',
+        isVerified ? 'text-green-500' : 'text-red-500'
+      )}>
+        <svg viewBox="0 0 200 200" xmlns="http://www.w3.org/2000/svg">
+          <path fill="currentColor" d="M45,-78.4C58.4,-70.9,69.4,-58.9,77.7,-45.2C86,-31.5,91.6,-16.2,91.5,-0.1C91.4,16,85.6,32,76.8,45.2C68,58.4,56.2,68.8,42.7,76.2C29.2,83.6,14.6,88.1,-0.5,89C-15.6,89.9,-31.2,87.2,-45.1,80.1C-59,73,-71.2,61.5,-79.2,47.6C-87.2,33.7,-91,17.4,-90.3,1.3C-89.6,-14.8,-84.4,-29.6,-75.5,-41.7C-66.6,-53.8,-54,-63.2,-40.2,-70.4C-26.4,-77.6,-11.6,-82.6,2.2,-86.2C16,-89.8,31.6,-85.9,45,-78.4Z" transform="translate(100 100)" />
+        </svg>
+      </div>
+
+      <div className="flex items-start justify-between mb-4 relative z-10">
+        <h3 className="font-bold text-slate-900 text-lg leading-tight flex-1 pr-4">
           {fact.claim}
         </h3>
         <StatusBadge status={isVerified ? 'verified' : 'false'}>
@@ -124,14 +128,18 @@ const FactCard = ({ fact, index }) => {
         </StatusBadge>
       </div>
       
-      <div className="space-y-4">
+      <div className="space-y-4 relative z-10">
         {/* Analysis/Evidence Section - Show only if we have content */}
         {analysisContent && (
           <div>
-            <h4 className="text-sm font-semibold text-slate-700 mb-2">
+            <h4 className="text-sm font-semibold text-slate-700 mb-2 flex items-center">
+              <div className={cn(
+                'w-2 h-2 rounded-full mr-2',
+                isVerified ? 'bg-green-500' : 'bg-red-500'
+              )} />
               {fact.evidence ? 'Evidence Found' : 'Analysis'}
             </h4>
-            <div className="bg-slate-50 rounded-xl p-4 border border-slate-200">
+            <div className="bg-gradient-to-br from-slate-50 to-slate-100 rounded-2xl p-4 border border-slate-200 shadow-sm">
               <p className="text-slate-600 text-sm leading-relaxed whitespace-pre-wrap">
                 {analysisContent}
               </p>
@@ -142,8 +150,11 @@ const FactCard = ({ fact, index }) => {
         {/* Reasoning Section - Only show if it's different from evidence */}
         {fact.reason && !hasDuplicateContent && (
           <div>
-            <h4 className="text-sm font-semibold text-slate-700 mb-2">Reasoning</h4>
-            <p className="text-slate-600 text-sm leading-relaxed">
+            <h4 className="text-sm font-semibold text-slate-700 mb-2 flex items-center">
+              <div className="w-2 h-2 rounded-full mr-2 bg-blue-500" />
+              Reasoning
+            </h4>
+            <p className="text-slate-600 text-sm leading-relaxed bg-blue-50 rounded-xl p-4 border border-blue-100">
               {fact.reason}
             </p>
           </div>
@@ -151,8 +162,11 @@ const FactCard = ({ fact, index }) => {
         
         {/* Correction Section */}
         {!isVerified && fact.correction && (
-          <div className="bg-red-50 rounded-2xl p-4 border border-red-100">
-            <h4 className="text-sm font-semibold text-red-800 mb-2">Correction</h4>
+          <div className="bg-gradient-to-br from-red-50 to-orange-50 rounded-2xl p-4 border border-red-100 shadow-sm">
+            <h4 className="text-sm font-semibold text-red-800 mb-2 flex items-center">
+              <div className="w-2 h-2 rounded-full mr-2 bg-red-500" />
+              Correction
+            </h4>
             <p className="text-red-700 text-sm leading-relaxed">
               {fact.correction}
             </p>
@@ -161,9 +175,12 @@ const FactCard = ({ fact, index }) => {
         
         {/* Source Section */}
         {fact.source && (
-          <div className="pt-2 border-t border-slate-100">
-            <h4 className="text-sm font-semibold text-slate-700 mb-1">Source</h4>
-            <p className="text-slate-600 text-sm break-words">
+          <div className="pt-4 border-t border-slate-100">
+            <h4 className="text-sm font-semibold text-slate-700 mb-1 flex items-center">
+              <div className="w-2 h-2 rounded-full mr-2 bg-purple-500" />
+              Source
+            </h4>
+            <p className="text-slate-600 text-sm break-words bg-purple-50 rounded-lg p-3 border border-purple-100">
               {fact.source}
             </p>
           </div>
@@ -218,15 +235,20 @@ const ThinkingStep = ({ step, status, data, index }) => {
       initial={{ opacity: 0, x: -20 }}
       animate={{ opacity: 1, x: 0 }}
       transition={{ delay: index * 0.2 }}
-      className="flex items-start space-x-4"
+      className="flex items-start space-x-4 relative"
     >
+      {/* Connecting Line */}
+      {index < 2 && (
+        <div className="absolute left-4 top-8 w-0.5 h-12 bg-gradient-to-b from-blue-200 to-slate-200 z-0" />
+      )}
+      
       <div className={cn(
-        'flex-shrink-0 w-8 h-8 rounded-full flex items-center justify-center border-2',
+        'flex-shrink-0 w-8 h-8 rounded-full flex items-center justify-center border-2 relative z-10 transition-all duration-300',
         isCompleted 
-          ? 'bg-green-500 border-green-500 text-white' 
+          ? 'bg-green-500 border-green-500 text-white shadow-lg shadow-green-200' 
           : isActive
-          ? 'bg-gradient-to-r from-blue-600 to-indigo-600 border-transparent text-white'
-          : 'border-slate-300 text-slate-400'
+          ? 'bg-gradient-to-r from-blue-600 to-indigo-600 border-transparent text-white shadow-lg shadow-blue-200'
+          : 'border-slate-300 text-slate-400 bg-white'
       )}>
         {isCompleted && <CheckCircle className="w-4 h-4" />}
         {isActive && <Loader className="w-4 h-4 animate-spin" />}
@@ -236,7 +258,7 @@ const ThinkingStep = ({ step, status, data, index }) => {
       <div className="flex-1 min-w-0">
         <div className="flex items-start justify-between">
           <h3 className={cn(
-            'font-bold text-lg mb-2',
+            'font-bold text-lg mb-2 transition-colors duration-300',
             isCompleted ? 'text-green-700' : 
             isActive ? 'text-slate-900' : 
             'text-slate-400'
@@ -247,7 +269,7 @@ const ThinkingStep = ({ step, status, data, index }) => {
           {(isCompleted || isActive) && hasData && (
             <button
               onClick={() => setIsExpanded(!isExpanded)}
-              className="ml-2 p-1 hover:bg-slate-100 rounded-lg transition-colors"
+              className="ml-2 p-1 hover:bg-slate-100 rounded-lg transition-colors duration-200"
             >
               {isExpanded ? (
                 <ChevronUp className="w-5 h-5 text-slate-500" />
@@ -281,13 +303,13 @@ const ThinkingStep = ({ step, status, data, index }) => {
                   initial={{ opacity: 0, scale: 0.9 }}
                   animate={{ opacity: 1, scale: 1 }}
                   transition={{ delay: i * 0.1 }}
-                  className="bg-slate-50 rounded-xl px-3 py-2 text-sm text-slate-700 border border-slate-200"
+                  className="bg-gradient-to-br from-slate-50 to-slate-100 rounded-xl px-4 py-3 text-sm text-slate-700 border border-slate-200 shadow-sm"
                 >
                   {item}
                 </motion.div>
               ))
             ) : (
-              <div className="bg-slate-50 rounded-xl px-3 py-2 text-sm text-slate-700 border border-slate-200">
+              <div className="bg-gradient-to-br from-slate-50 to-slate-100 rounded-xl px-4 py-3 text-sm text-slate-700 border border-slate-200 shadow-sm">
                 <EvidenceRenderer text={data} />
               </div>
             )}
@@ -302,7 +324,7 @@ const ThinkingStep = ({ step, status, data, index }) => {
           >
             <button
               onClick={() => setIsExpanded(true)}
-              className="text-sm text-blue-600 hover:text-blue-800 font-medium flex items-center space-x-1"
+              className="text-sm text-blue-600 hover:text-blue-800 font-medium flex items-center space-x-1 transition-colors duration-200"
             >
               <span>Show details</span>
               <ChevronDown className="w-4 h-4" />
@@ -315,7 +337,7 @@ const ThinkingStep = ({ step, status, data, index }) => {
             initial={{ width: 0 }}
             animate={{ width: '100%' }}
             transition={{ duration: 2, repeat: Infinity }}
-            className="h-1 bg-gradient-to-r from-blue-600 to-indigo-600 rounded-full mt-3"
+            className="h-1 bg-gradient-to-r from-blue-600 to-indigo-600 rounded-full mt-3 shadow-sm"
           />
         )}
       </div>
@@ -341,10 +363,10 @@ const CopyButton = ({ text, className }) => {
     <button
       onClick={handleCopy}
       className={cn(
-        'inline-flex items-center space-x-2 px-4 py-2 rounded-xl font-medium transition-all duration-200',
+        'inline-flex items-center space-x-2 px-4 py-2 rounded-xl font-medium transition-all duration-200 shadow-sm hover:shadow-md',
         copied 
           ? 'bg-green-100 text-green-700 border border-green-200' 
-          : 'bg-blue-100 text-blue-700 border border-blue-200 hover:bg-blue-200'
+          : 'bg-gradient-to-r from-blue-100 to-indigo-100 text-blue-700 border border-blue-200 hover:from-blue-200 hover:to-indigo-200'
       )}
     >
       {copied ? (
@@ -518,23 +540,42 @@ const App = () => {
   }, [streamData.report]);
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-50 to-white font-sans text-slate-900">
+    <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50/30 to-indigo-50/30 font-sans text-slate-900">
+      {/* Background Decorative Elements */}
+      <div className="fixed inset-0 overflow-hidden pointer-events-none">
+        <div className="absolute -top-40 -right-40 w-80 h-80 bg-blue-200/20 rounded-full blur-3xl"></div>
+        <div className="absolute -bottom-40 -left-40 w-80 h-80 bg-indigo-200/20 rounded-full blur-3xl"></div>
+        <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-96 h-96 bg-slate-200/10 rounded-full blur-3xl"></div>
+      </div>
+
       {/* Hero Section */}
       <motion.section 
         initial={{ opacity: 0, y: -20 }}
         animate={{ opacity: 1, y: 0 }}
-        className="relative py-16 px-4 text-center bg-white border-b border-slate-200"
+        className="relative py-16 px-4 text-center border-b border-slate-200/50 bg-white/80 backdrop-blur-sm"
       >
-        <div className="absolute inset-0 bg-gradient-to-r from-blue-600/5 to-indigo-600/5" />
+        <div className="absolute inset-0 bg-gradient-to-r from-blue-600/5 via-indigo-600/5 to-purple-600/5" />
         <div className="relative max-w-4xl mx-auto">
           <motion.div
             initial={{ scale: 0.9, opacity: 0 }}
             animate={{ scale: 1, opacity: 1 }}
             transition={{ delay: 0.2 }}
-            className="inline-flex items-center space-x-3 mb-6"
+            className="inline-flex items-center space-x-4 mb-6 bg-white/80 rounded-2xl px-6 py-4 shadow-lg border border-slate-200/50 backdrop-blur-sm"
           >
-            <Shield className="w-12 h-12 text-blue-600" />
-            <h1 className="text-5xl font-black bg-gradient-to-r from-blue-600 to-indigo-600 bg-clip-text text-transparent">
+            <img 
+              src="/logo.png" 
+              alt="FactZod Logo" 
+              className="w-12 h-12 drop-shadow-lg"
+              onError={(e) => {
+                // Fallback to shield icon if logo doesn't load
+                e.target.style.display = 'none';
+                const fallback = document.createElement('div');
+                fallback.className = 'w-12 h-12 bg-gradient-to-r from-blue-600 to-indigo-600 rounded-xl flex items-center justify-center text-white font-bold text-lg';
+                fallback.textContent = 'FZ';
+                e.target.parentNode.insertBefore(fallback, e.target);
+              }}
+            />
+            <h1 className="text-5xl font-black bg-gradient-to-r from-blue-600 via-indigo-600 to-purple-600 bg-clip-text text-transparent">
               FactZod
             </h1>
           </motion.div>
@@ -550,7 +591,7 @@ const App = () => {
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             transition={{ delay: 0.6 }}
-            className="text-slate-500 max-w-2xl mx-auto"
+            className="text-slate-500 max-w-2xl mx-auto bg-white/60 rounded-xl p-4 border border-slate-200/50 backdrop-blur-sm"
           >
             AI-powered fact-checking agent that extracts, researches, and verifies claims with military precision
           </motion.p>
@@ -558,24 +599,27 @@ const App = () => {
       </motion.section>
 
       {/* Main Content - Single Column Layout */}
-      <div className="max-w-4xl mx-auto px-4 py-8 space-y-8">
+      <div className="relative max-w-4xl mx-auto px-4 py-8 space-y-8 z-10">
         {/* Input Area */}
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
-          className="bg-white rounded-3xl shadow-xl border border-slate-200 p-8"
+          className="bg-white/80 backdrop-blur-sm rounded-3xl shadow-2xl border border-slate-200/50 p-8 relative overflow-hidden"
         >
-          <h2 className="text-2xl font-bold text-slate-900 mb-6">
+          {/* Decorative Corner */}
+          <div className="absolute top-0 right-0 w-24 h-24 bg-gradient-to-br from-blue-500/10 to-indigo-500/10 rounded-bl-3xl"></div>
+          
+          <h2 className="text-2xl font-bold text-slate-900 mb-6 relative z-10">
             Analyze Your Text
           </h2>
           
-          <div className="space-y-4">
+          <div className="space-y-4 relative z-10">
             <textarea
               ref={textareaRef}
               value={inputText}
               onChange={(e) => setInputText(e.target.value)}
               placeholder="Paste the text you want to fact-check here... (articles, statements, claims, etc.)"
-              className="w-full h-48 px-6 py-4 rounded-2xl border-2 border-slate-200 focus:border-blue-500 focus:ring-4 focus:ring-blue-500/20 resize-none transition-all duration-200 text-slate-700 placeholder-slate-400 focus:outline-none"
+              className="w-full h-48 px-6 py-4 rounded-2xl border-2 border-slate-200 focus:border-blue-500 focus:ring-4 focus:ring-blue-500/20 resize-none transition-all duration-200 text-slate-700 placeholder-slate-400 focus:outline-none bg-white/80 backdrop-blur-sm shadow-inner"
               disabled={isAnalyzing}
             />
             
@@ -585,10 +629,10 @@ const App = () => {
               onClick={handleAnalyze}
               disabled={!inputText.trim() || isAnalyzing}
               className={cn(
-                'w-full py-4 px-8 rounded-2xl font-bold text-white text-lg shadow-lg transition-all duration-200',
+                'w-full py-4 px-8 rounded-2xl font-bold text-white text-lg shadow-lg transition-all duration-200 relative overflow-hidden',
                 isAnalyzing 
                   ? 'bg-slate-400 cursor-not-allowed' 
-                  : 'bg-gradient-to-r from-blue-600 to-indigo-600 hover:shadow-xl'
+                  : 'bg-gradient-to-r from-blue-600 to-indigo-600 hover:shadow-xl hover:from-blue-700 hover:to-indigo-700'
               )}
             >
               {isAnalyzing ? (
@@ -597,7 +641,10 @@ const App = () => {
                   Analyzing...
                 </span>
               ) : (
-                'Verify Facts'
+                <>
+                  <span className="relative z-10">Verify Facts</span>
+                  <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/20 to-transparent -skew-x-12 transform translate-x-[-100%] group-hover:translate-x-[100%] transition-transform duration-1000"></div>
+                </>
               )}
             </motion.button>
           </div>
@@ -610,13 +657,18 @@ const App = () => {
               initial={{ opacity: 0, height: 0 }}
               animate={{ opacity: 1, height: 'auto' }}
               exit={{ opacity: 0, height: 0 }}
-              className="bg-white rounded-3xl shadow-xl border border-slate-200 p-8 overflow-hidden"
+              className="bg-white/80 backdrop-blur-sm rounded-3xl shadow-2xl border border-slate-200/50 p-8 overflow-hidden relative"
             >
-              <h2 className="text-2xl font-bold text-slate-900 mb-6">
+              {/* Background Pattern */}
+              <div className="absolute inset-0 opacity-[0.02]">
+                <div className="absolute inset-0 bg-gradient-to-br from-blue-500 to-indigo-500"></div>
+              </div>
+              
+              <h2 className="text-2xl font-bold text-slate-900 mb-6 relative z-10">
                 Verification Process
               </h2>
               
-              <div className="space-y-8">
+              <div className="space-y-8 relative z-10">
                 {thinkingSteps.map((step, index) => (
                   <ThinkingStep
                     key={step.title}
@@ -641,13 +693,16 @@ const App = () => {
             <motion.div
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
-              className="bg-white rounded-3xl shadow-xl border border-slate-200 p-8"
+              className="bg-white/80 backdrop-blur-sm rounded-3xl shadow-2xl border border-slate-200/50 p-8 relative overflow-hidden"
             >
-              <h2 className="text-2xl font-bold text-slate-900 mb-6">
+              {/* Decorative Corner */}
+              <div className="absolute bottom-0 left-0 w-24 h-24 bg-gradient-to-tr from-green-500/10 to-blue-500/10 rounded-tr-3xl"></div>
+              
+              <h2 className="text-2xl font-bold text-slate-900 mb-6 relative z-10">
                 Fact Check Report
               </h2>
               
-              <div className="space-y-6">
+              <div className="space-y-6 relative z-10">
                 {factCheckResults.map((fact, index) => (
                   <FactCard
                     key={index}
@@ -666,18 +721,21 @@ const App = () => {
             <motion.div
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
-              className="bg-white rounded-3xl shadow-xl border border-slate-200 p-8"
+              className="bg-white/80 backdrop-blur-sm rounded-3xl shadow-2xl border border-slate-200/50 p-8 relative overflow-hidden"
             >
-              <div className="flex items-center justify-between mb-6">
+              {/* Background Pattern */}
+              <div className="absolute top-0 left-0 w-full h-20 bg-gradient-to-b from-green-500/5 to-transparent"></div>
+              
+              <div className="flex items-center justify-between mb-6 relative z-10">
                 <h2 className="text-2xl font-bold text-slate-900">
                   Verified Version
                 </h2>
                 <CopyButton text={streamData.final} />
               </div>
               
-              <div className="prose prose-slate max-w-none">
-                <div className="bg-slate-50 rounded-2xl p-6 border border-slate-200">
-                  <p className="text-slate-700 leading-relaxed whitespace-pre-wrap break-words">
+              <div className="prose prose-slate max-w-none relative z-10">
+                <div className="bg-gradient-to-br from-slate-50 to-slate-100 rounded-2xl p-6 border border-slate-200 shadow-inner">
+                  <p className="text-slate-700 leading-relaxed whitespace-pre-wrap break-words text-lg">
                     {streamData.final}
                   </p>
                 </div>
