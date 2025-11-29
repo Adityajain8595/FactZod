@@ -235,15 +235,10 @@ const ThinkingStep = ({ step, status, data, index }) => {
       initial={{ opacity: 0, x: -20 }}
       animate={{ opacity: 1, x: 0 }}
       transition={{ delay: index * 0.2 }}
-      className="flex items-start space-x-4 relative"
+      className="flex items-start space-x-4"
     >
-      {/* Connecting Line */}
-      {index < 2 && (
-        <div className="absolute left-4 top-8 w-0.5 h-12 bg-gradient-to-b from-blue-200 to-slate-200 z-0" />
-      )}
-      
       <div className={cn(
-        'flex-shrink-0 w-8 h-8 rounded-full flex items-center justify-center border-2 relative z-10 transition-all duration-300',
+        'flex-shrink-0 w-8 h-8 rounded-full flex items-center justify-center border-2 transition-all duration-300',
         isCompleted 
           ? 'bg-green-500 border-green-500 text-white shadow-lg shadow-green-200' 
           : isActive
