@@ -91,9 +91,10 @@ def generate_queries(state: FactCheckState):
             # INSTRUCTIONS
             For each claim provided:
             1. Identify the core entities (Subject, Event, Value).
-            2. Remove "fluff" words and complex grammar.
-            3. Add time identifiers if the claim refers to a specific period (e.g., "2024", "last year").
-            4. Create ONE search query per claim.
+            2. Remove "fluff" words and complex grammar. 
+            3. Try to recognize obviously fictional content patterns, like improbable/absurd events and contradictions to real world facts.
+            4. Add time identifiers if the claim refers to a specific period (e.g., "2024", "last year").
+            5. Create ONE search query per claim.
 
             # EXAMPLES
             Claim: "Tesla's stock dropped by 12 percent last Tuesday."
@@ -162,7 +163,8 @@ def fact_check_report(state: FactCheckState):
     parser = PydanticOutputParser(pydantic_object=FactCheckReport)
     prompt = PromptTemplate(
         input_variables = ['claims', 'evidences'],
-        template = '''You are an impartial Fact-Checking Judge. You determine the truthfulness of claims based SOLELY on the provided evidence.
+        template = '''You are an impartial Fact-Checking Judge. You determine the truthfulness of claims based SOLELY on the 
+        provided evidence.
 
             The list of claims: {claims}
 
@@ -180,8 +182,8 @@ def fact_check_report(state: FactCheckState):
                - This explains WHY you assigned the status
                
             4. **STATUS**: Assign one of:
-               - "VERIFIED": Evidence explicitly confirms ALL aspects of the claim
-               - "FALSE": Evidence explicitly contradicts the claim
+               - "VERIFIED": Evidence explicitly confirms ALL aspects of the claim.
+               - "FALSE": Evidence explicitly contradicts the claim or the claim itself is logically impossible/fictional/specifically disproven.
                - "INCONCLUSIVE": Evidence is missing, conflicting, or vague
                
             5. **CORRECTION** (only if FALSE): Provide the CORRECT factual information from the evidence
