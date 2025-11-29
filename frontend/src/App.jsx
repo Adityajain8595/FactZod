@@ -88,12 +88,49 @@ const XIcon = ({ className }) => (
 
 // --- COMPONENTS ---
 
+// Reusable component for automatic link detection
+const TextWithLinks = ({ text, className = "" }) => {
+  if (!text) return null;
+
+  // Regular expression to match URLs
+  const urlRegex = /(https?:\/\/[^\s]+)/g;
+  
+  // Split text into parts, some of which are URLs
+  const parts = text.split(urlRegex);
+  
+  return (
+    <span className={className}>
+      {parts.map((part, index) => {
+        // Check if this part is a URL
+        if (urlRegex.test(part)) {
+          return (
+            <a
+              key={index}
+              href={part}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="text-blue-600 hover:text-blue-800 underline break-all inline-flex items-center transition-colors duration-200"
+            >
+              {part}
+              <svg className="w-3 h-3 ml-1 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" />
+              </svg>
+            </a>
+          );
+        }
+        return part;
+      })}
+    </span>
+  );
+};
+
 const StatusBadge = ({ status, children }) => {
   const variants = {
     verified: 'bg-green-50 text-green-700 border-green-200',
     false: 'bg-red-50 text-red-700 border-red-200',
     researching: 'bg-blue-50 text-blue-700 border-blue-200',
     verifying: 'bg-amber-50 text-amber-700 border-amber-200',
+    inconclusive: 'bg-gray-50 text-gray-700 border-gray-200',
     default: 'bg-slate-50 text-slate-700 border-slate-200'
   };
 
@@ -106,8 +143,44 @@ const StatusBadge = ({ status, children }) => {
       {status === 'false' && <AlertCircle className="w-4 h-4 mr-1" />}
       {status === 'researching' && <Loader className="w-4 h-4 mr-1 animate-spin" />}
       {status === 'verifying' && <Search className="w-4 h-4 mr-1" />}
+      {status === 'inconclusive' && <AlertCircle className="w-4 h-4 mr-1" />}
       {children}
     </span>
+  );
+};
+
+// Markdown renderer for evidence snippets using react-markdown
+const EvidenceRenderer = ({ text }) => {
+  if (!text) return null;
+
+  return (
+    <div className="text-sm text-slate-700 markdown-content">
+      <ReactMarkdown
+        components={{
+          p: ({ children }) => <p className="mb-2 leading-relaxed">{children}</p>,
+          ul: ({ children }) => <ul className="mb-2 ml-4 space-y-1">{children}</ul>,
+          ol: ({ children }) => <ol className="mb-2 ml-4 space-y-1 list-decimal">{children}</ol>,
+          li: ({ children }) => <li className="pl-1">{children}</li>,
+          a: ({ href, children }) => (
+            <a 
+              href={href} 
+              target="_blank" 
+              rel="noopener noreferrer" 
+              className="text-blue-600 hover:text-blue-800 underline break-all inline-flex items-center transition-colors duration-200"
+            >
+              {children}
+              <svg className="w-3 h-3 ml-1 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" />
+              </svg>
+            </a>
+          ),
+          strong: ({ children }) => <strong className="font-bold text-slate-900">{children}</strong>,
+          em: ({ children }) => <em className="italic text-slate-800">{children}</em>,
+        }}
+      >
+        {text}
+      </ReactMarkdown>
+    </div>
   );
 };
 
@@ -166,7 +239,7 @@ const FactCard = ({ fact, index }) => {
             </h4>
             <div className="bg-gradient-to-br from-slate-50 to-slate-100 rounded-2xl p-4 border border-slate-200 shadow-sm">
               <p className="text-slate-600 text-sm leading-relaxed whitespace-pre-wrap">
-                {analysisContent}
+                <TextWithLinks text={analysisContent} />
               </p>
             </div>
           </div>
@@ -180,7 +253,7 @@ const FactCard = ({ fact, index }) => {
               Reasoning
             </h4>
             <p className="text-slate-600 text-sm leading-relaxed bg-blue-50 rounded-xl p-4 border border-blue-100">
-              {fact.reason}
+              <TextWithLinks text={fact.reason} />
             </p>
           </div>
         )}
@@ -193,7 +266,7 @@ const FactCard = ({ fact, index }) => {
               Correction
             </h4>
             <p className="text-red-700 text-sm leading-relaxed">
-              {fact.correction}
+              <TextWithLinks text={fact.correction} />
             </p>
           </div>
         )}
@@ -205,45 +278,13 @@ const FactCard = ({ fact, index }) => {
               <div className="w-2 h-2 rounded-full mr-2 bg-purple-500" />
               Source
             </h4>
-            <p className="text-slate-600 text-sm break-words bg-purple-50 rounded-lg p-3 border border-purple-100">
-              {fact.source}
-            </p>
+            <div className="text-slate-600 text-sm break-words bg-purple-50 rounded-lg p-3 border border-purple-100">
+              <TextWithLinks text={fact.source} />
+            </div>
           </div>
         )}
       </div>
     </motion.div>
-  );
-};
-
-// Markdown renderer for evidence snippets using react-markdown
-const EvidenceRenderer = ({ text }) => {
-  if (!text) return null;
-
-  return (
-    <div className="text-sm text-slate-700 markdown-content">
-      <ReactMarkdown
-        components={{
-          p: ({ children }) => <p className="mb-2 leading-relaxed">{children}</p>,
-          ul: ({ children }) => <ul className="mb-2 ml-4 space-y-1">{children}</ul>,
-          ol: ({ children }) => <ol className="mb-2 ml-4 space-y-1 list-decimal">{children}</ol>,
-          li: ({ children }) => <li className="pl-1">{children}</li>,
-          a: ({ href, children }) => (
-            <a 
-              href={href} 
-              target="_blank" 
-              rel="noopener noreferrer" 
-              className="text-blue-600 hover:text-blue-800 underline break-all"
-            >
-              {children}
-            </a>
-          ),
-          strong: ({ children }) => <strong className="font-bold text-slate-900">{children}</strong>,
-          em: ({ children }) => <em className="italic text-slate-800">{children}</em>,
-        }}
-      >
-        {text}
-      </ReactMarkdown>
-    </div>
   );
 };
 
@@ -325,7 +366,11 @@ const ThinkingStep = ({ step, status, data, index }) => {
                   transition={{ delay: i * 0.1 }}
                   className="bg-gradient-to-br from-slate-50 to-slate-100 rounded-xl px-4 py-3 text-sm text-slate-700 border border-slate-200 shadow-sm"
                 >
-                  {item}
+                  {typeof item === 'string' ? (
+                    <TextWithLinks text={item} />
+                  ) : (
+                    item
+                  )}
                 </motion.div>
               ))
             ) : (
@@ -950,7 +995,7 @@ const App = () => {
               <div className="prose prose-slate max-w-none relative z-10">
                 <div className="bg-gradient-to-br from-slate-50 to-slate-100 rounded-2xl p-6 border border-slate-200 shadow-inner">
                   <p className="text-slate-700 leading-relaxed whitespace-pre-wrap break-words text-lg">
-                    {streamData.final}
+                    <TextWithLinks text={streamData.final} />
                   </p>
                 </div>
               </div>
