@@ -61,6 +61,31 @@ const CheckIcon = ({ className }) => (
   </svg>
 );
 
+const UploadIcon = ({ className }) => (
+  <svg className={className} width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+    <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/>
+    <polyline points="17 8 12 3 7 8"/>
+    <line x1="12" y1="3" x2="12" y2="15"/>
+  </svg>
+);
+
+const FileIcon = ({ className }) => (
+  <svg className={className} width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+    <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/>
+    <polyline points="14 2 14 8 20 8"/>
+    <line x1="16" y1="13" x2="8" y2="13"/>
+    <line x1="16" y1="17" x2="8" y2="17"/>
+    <polyline points="10 9 9 9 8 9"/>
+  </svg>
+);
+
+const XIcon = ({ className }) => (
+  <svg className={className} width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+    <line x1="18" y1="6" x2="6" y2="18"/>
+    <line x1="6" y1="6" x2="18" y2="18"/>
+  </svg>
+);
+
 // --- COMPONENTS ---
 
 const StatusBadge = ({ status, children }) => {
@@ -379,11 +404,137 @@ const CopyButton = ({ text, className }) => {
   );
 };
 
+// File Upload Component
+const FileUploadArea = ({ onFileSelect, selectedFile, onRemoveFile, isAnalyzing }) => {
+  const fileInputRef = useRef(null);
+  const [isDragging, setIsDragging] = useState(false);
+
+  const handleDragOver = (e) => {
+    e.preventDefault();
+    setIsDragging(true);
+  };
+
+  const handleDragLeave = (e) => {
+    e.preventDefault();
+    setIsDragging(false);
+  };
+
+  const handleDrop = (e) => {
+    e.preventDefault();
+    setIsDragging(false);
+    const files = e.dataTransfer.files;
+    if (files.length > 0) {
+      handleFile(files[0]);
+    }
+  };
+
+  const handleFileInput = (e) => {
+    const files = e.target.files;
+    if (files.length > 0) {
+      handleFile(files[0]);
+    }
+  };
+
+  const handleFile = (file) => {
+    if (file.type === 'application/pdf') {
+      onFileSelect(file);
+    } else {
+      alert('Please upload a PDF file only.');
+    }
+  };
+
+  const handleAreaClick = () => {
+    if (!isAnalyzing) {
+      fileInputRef.current?.click();
+    }
+  };
+
+  return (
+    <div className="space-y-4">
+      <div
+        onClick={handleAreaClick}
+        onDragOver={handleDragOver}
+        onDragLeave={handleDragLeave}
+        onDrop={handleDrop}
+        className={cn(
+          'border-2 border-dashed rounded-2xl p-8 text-center cursor-pointer transition-all duration-200',
+          isDragging
+            ? 'border-blue-500 bg-blue-50/50'
+            : 'border-slate-300 hover:border-slate-400 bg-white/60',
+          isAnalyzing && 'opacity-50 cursor-not-allowed'
+        )}
+      >
+        <input
+          type="file"
+          ref={fileInputRef}
+          onChange={handleFileInput}
+          accept=".pdf"
+          className="hidden"
+          disabled={isAnalyzing}
+        />
+        
+        <div className="space-y-4">
+          <div className={cn(
+            'w-16 h-16 mx-auto rounded-2xl flex items-center justify-center transition-colors duration-200',
+            isDragging 
+              ? 'bg-blue-100 text-blue-600' 
+              : 'bg-slate-100 text-slate-600'
+          )}>
+            <UploadIcon className="w-8 h-8" />
+          </div>
+          
+          <div className="space-y-2">
+            <h3 className="font-semibold text-slate-900 text-lg">
+              {selectedFile ? 'PDF File Selected' : 'Upload PDF Document'}
+            </h3>
+            <p className="text-slate-600 text-sm">
+              {selectedFile 
+                ? `Selected: ${selectedFile.name}`
+                : 'Drag & drop your PDF file here or click to browse'
+              }
+            </p>
+            <p className="text-slate-500 text-xs">
+              Supports PDF files only
+            </p>
+          </div>
+        </div>
+      </div>
+
+      {selectedFile && (
+        <motion.div
+          initial={{ opacity: 0, y: 10 }}
+          animate={{ opacity: 1, y: 0 }}
+          className="flex items-center justify-between bg-gradient-to-r from-blue-50 to-indigo-50 rounded-xl p-4 border border-blue-200"
+        >
+          <div className="flex items-center space-x-3">
+            <FileIcon className="w-8 h-8 text-blue-600" />
+            <div>
+              <p className="font-medium text-slate-900 text-sm">{selectedFile.name}</p>
+              <p className="text-slate-600 text-xs">
+                {(selectedFile.size / (1024 * 1024)).toFixed(2)} MB
+              </p>
+            </div>
+          </div>
+          <button
+            onClick={onRemoveFile}
+            disabled={isAnalyzing}
+            className="p-2 hover:bg-red-100 rounded-lg text-red-600 transition-colors duration-200 disabled:opacity-50"
+          >
+            <XIcon className="w-4 h-4" />
+          </button>
+        </motion.div>
+      )}
+    </div>
+  );
+};
+
 // --- MAIN APP ---
 
 const App = () => {
   const [inputText, setInputText] = useState('');
+  const [selectedFile, setSelectedFile] = useState(null);
   const [isAnalyzing, setIsAnalyzing] = useState(false);
+  const [activeTab, setActiveTab] = useState('text'); // 'text' or 'pdf'
   const [streamData, setStreamData] = useState({
     claims: [],
     queries: [],
@@ -414,8 +565,18 @@ const App = () => {
 
   const textareaRef = useRef(null);
 
+  const handleFileSelect = (file) => {
+    setSelectedFile(file);
+    // Clear text input when file is selected
+    setInputText('');
+  };
+
+  const handleRemoveFile = () => {
+    setSelectedFile(null);
+  };
+
   const handleAnalyze = async () => {
-    if (!inputText.trim() || isAnalyzing) return;
+    if ((!inputText.trim() && !selectedFile) || isAnalyzing) return;
 
     setIsAnalyzing(true);
     setStreamData({ claims: [], queries: [], evidence: '', report: null, final: '' });
@@ -424,13 +585,29 @@ const App = () => {
     try {
       console.log('Starting analysis...');
       
-      const response = await fetch('https://factzod.onrender.com/stream_analyze', { 
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({ text: inputText }),
-      });
+      let response;
+      
+      if (activeTab === 'text' && inputText.trim()) {
+        // Text analysis
+        response = await fetch('https://factzod.onrender.com/stream_analyze', { 
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({ text: inputText }),
+        });
+      } else if (activeTab === 'pdf' && selectedFile) {
+        // PDF analysis
+        const formData = new FormData();
+        formData.append('file', selectedFile);
+        
+        response = await fetch('https://factzod.onrender.com/upload_analyze', { 
+          method: 'POST',
+          body: formData,
+        });
+      } else {
+        throw new Error('No content to analyze');
+      }
 
       if (!response.ok) throw new Error(`Server Error: ${response.status}`);
 
@@ -534,6 +711,11 @@ const App = () => {
     return [];
   }, [streamData.report]);
 
+  // Check if analyze button should be enabled
+  const isAnalyzeEnabled = 
+    (activeTab === 'text' && inputText.trim()) || 
+    (activeTab === 'pdf' && selectedFile);
+
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50/30 to-indigo-50/30 font-sans text-slate-900">
       {/* Background Decorative Elements */}
@@ -605,27 +787,62 @@ const App = () => {
           <div className="absolute top-0 right-0 w-24 h-24 bg-gradient-to-br from-blue-500/10 to-indigo-500/10 rounded-bl-3xl"></div>
           
           <h2 className="text-2xl font-bold text-slate-900 mb-6 relative z-10">
-            Analyze Your Text
+            Analyze Your Content
           </h2>
+
+          {/* Tab Navigation */}
+          <div className="flex space-x-1 bg-slate-100 rounded-2xl p-1 mb-6">
+            <button
+              onClick={() => setActiveTab('text')}
+              className={cn(
+                'flex-1 py-3 px-4 rounded-xl font-semibold transition-all duration-200',
+                activeTab === 'text'
+                  ? 'bg-white text-slate-900 shadow-sm'
+                  : 'text-slate-600 hover:text-slate-900'
+              )}
+            >
+              Text Input
+            </button>
+            <button
+              onClick={() => setActiveTab('pdf')}
+              className={cn(
+                'flex-1 py-3 px-4 rounded-xl font-semibold transition-all duration-200',
+                activeTab === 'pdf'
+                  ? 'bg-white text-slate-900 shadow-sm'
+                  : 'text-slate-600 hover:text-slate-900'
+              )}
+            >
+              PDF Upload
+            </button>
+          </div>
           
           <div className="space-y-4 relative z-10">
-            <textarea
-              ref={textareaRef}
-              value={inputText}
-              onChange={(e) => setInputText(e.target.value)}
-              placeholder="Paste the text you want to fact-check here... (articles, statements, claims, etc.)"
-              className="w-full h-48 px-6 py-4 rounded-2xl border-2 border-slate-200 focus:border-blue-500 focus:ring-4 focus:ring-blue-500/20 resize-none transition-all duration-200 text-slate-700 placeholder-slate-400 focus:outline-none bg-white/80 backdrop-blur-sm shadow-inner"
-              disabled={isAnalyzing}
-            />
+            {activeTab === 'text' ? (
+              <textarea
+                ref={textareaRef}
+                value={inputText}
+                onChange={(e) => setInputText(e.target.value)}
+                placeholder="Paste the text you want to fact-check here... (articles, statements, claims, etc.)"
+                className="w-full h-48 px-6 py-4 rounded-2xl border-2 border-slate-200 focus:border-blue-500 focus:ring-4 focus:ring-blue-500/20 resize-none transition-all duration-200 text-slate-700 placeholder-slate-400 focus:outline-none bg-white/80 backdrop-blur-sm shadow-inner"
+                disabled={isAnalyzing}
+              />
+            ) : (
+              <FileUploadArea
+                onFileSelect={handleFileSelect}
+                selectedFile={selectedFile}
+                onRemoveFile={handleRemoveFile}
+                isAnalyzing={isAnalyzing}
+              />
+            )}
             
             <motion.button
               whileHover={{ scale: isAnalyzing ? 1 : 1.02 }}
               whileTap={{ scale: isAnalyzing ? 1 : 0.98 }}
               onClick={handleAnalyze}
-              disabled={!inputText.trim() || isAnalyzing}
+              disabled={!isAnalyzeEnabled || isAnalyzing}
               className={cn(
                 'w-full py-4 px-8 rounded-2xl font-bold text-white text-lg shadow-lg transition-all duration-200 relative overflow-hidden',
-                isAnalyzing 
+                !isAnalyzeEnabled || isAnalyzing
                   ? 'bg-slate-400 cursor-not-allowed' 
                   : 'bg-gradient-to-r from-blue-600 to-indigo-600 hover:shadow-xl hover:from-blue-700 hover:to-indigo-700'
               )}
@@ -633,11 +850,13 @@ const App = () => {
               {isAnalyzing ? (
                 <span className="flex items-center justify-center">
                   <Loader className="w-5 h-5 mr-2 animate-spin" />
-                  Analyzing...
+                  {activeTab === 'pdf' ? 'Extracting & Analyzing...' : 'Analyzing...'}
                 </span>
               ) : (
                 <>
-                  <span className="relative z-10">Verify Facts</span>
+                  <span className="relative z-10">
+                    {activeTab === 'pdf' ? 'Extract & Verify Facts' : 'Verify Facts'}
+                  </span>
                   <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/20 to-transparent -skew-x-12 transform translate-x-[-100%] group-hover:translate-x-[100%] transition-transform duration-1000"></div>
                 </>
               )}
