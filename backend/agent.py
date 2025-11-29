@@ -184,7 +184,7 @@ def fact_check_report(state: FactCheckState):
             4. **STATUS**: Assign one of:
                - "VERIFIED": Evidence explicitly confirms ALL aspects of the claim.
                - "FALSE": Evidence explicitly contradicts the claim or the claim itself is logically impossible/fictional/specifically disproven.
-               - "INCONCLUSIVE": Evidence is missing, conflicting, or vague
+               - "INCONCLUSIVE": Evidence is ambiguous, conflicting, or vague
                
             5. **CORRECTION** (only if FALSE): Provide the CORRECT factual information from the evidence
                
