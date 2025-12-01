@@ -65,10 +65,16 @@ Environment variables required:
 
 ## Running Locally
 
+Cloning GitHub Repo:
+
+```cmd
+git clone https://github.com/Adityajain8595/FactZod.git
+```
+
 Start the backend server:
 
 ```cmd
-cd c:\Users\ADMIN\OneDrive\Documents\Code\Langchain_Projects\Facts-Check-Agent\backend
+cd backend
 .venv\Scripts\activate
 pip install -r requirements.txt
 uvicorn app:app --host 0.0.0.0 --port 8000 --reload
@@ -77,7 +83,7 @@ uvicorn app:app --host 0.0.0.0 --port 8000 --reload
 Start the frontend: 
 
 ```cmd
-cd c:\Users\ADMIN\OneDrive\Documents\Code\Langchain_Projects\Facts-Check-Agent\frontend
+cd frontend
 .venv\Scripts\activate
 npm install
 npm run dev
