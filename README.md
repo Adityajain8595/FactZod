@@ -4,7 +4,7 @@
 <p align="center">
   <a href="https://fastapi.tiangolo.com/"><img src="https://img.shields.io/badge/FastAPI-Latest-009688.svg" alt="FastAPI"></a>
   <a href="https://python.langchain.com/"><img src="https://img.shields.io/badge/LangChain-Core-2496ED.svg" alt="LangChain Core"></a>
-  <a href="https://www.python.org/"><img src="https://img.shields.io/badge/Python-3.11%2B-blue.svg" alt="Python"></a>
+  <a href="https://www.python.org/"><img src="https://img.shields.io/badge/Python-3.10%2B-blue.svg" alt="Python"></a>
 </p>
 
 ---
@@ -115,14 +115,20 @@ Response (JSON):
 2. Connect the GitHub repo and point to the `Facts-Check-Agent/backend` directory as the root (Render UI supports subdirectory deploys).
 3. Build Command: `pip install -r requirements.txt` 
 4. Start Command: `uvicorn app:app --host 0.0.0.0 --port $PORT`
-5. Set environment variables in Render: `GROQ_API_KEY`, `GROQ_MODEL`, and any other keys.
+5. Set environment variables in Render: `GROQ_API_KEY`, `TAVILY_API_KEY`.
+
+Similarly for frontend,
+1. Create a new static site on Render (Nodejs).
+2. Connect the GitHub repo and point to the `Facts-Check-Agent/frontend` directory as the root.
+3. Build Command: `npm run build` 
+4. Publish Directory: `dist`
 
 ---
 
 ## Contributing
 
 1. Fork the repo and create a feature branch.
-2. Run tests (if added) and linters.
+2. Run tests and linters.
 3. Open a PR describing the changes.
 
 ---
